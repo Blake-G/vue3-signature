@@ -79,28 +79,28 @@ watch(
     }
 );
 
+const resizeCanvas = () => {
+  let c = document.getElementById(state.uid);
+  let url;
+  if (!isEmpty()) {
+    url = save();
+  }
+  let ratio = Math.max(window.devicePixelRatio || 1, 1);
+  // c.width = props.w.replace(/px|%/g,"") * ratio;
+  // c.height = props.h.replace(/px|%/g,"") * ratio;
+  c.width = c.offsetWidth * ratio;
+  c.height = c.offsetHeight * ratio;
+  c.getContext("2d").scale(ratio, ratio);
+  clear();
+  !props.clearOnResize && url !== undefined && fromDataURL(url);
+  Object.keys(props.waterMark).length && addWaterMark(props.waterMark);
+}
+
 const draw = () => {
   let canvas = document.getElementById(state.uid);
   state.sig = new SignaturePad(canvas, state.option);
 
-  function resizeCanvas(c) {
-    let url;
-    if (!isEmpty()) {
-      url = save();
-    }
-    let ratio = Math.max(window.devicePixelRatio || 1, 1);
-    // c.width = props.w.replace(/px|%/g,"") * ratio;
-    // c.height = props.h.replace(/px|%/g,"") * ratio;
-    c.width = c.offsetWidth * ratio;
-    c.height = c.offsetHeight * ratio;
-    c.getContext("2d").scale(ratio, ratio);
-    clear();
-    !props.clearOnResize && url !== undefined && fromDataURL(url);
-    Object.keys(props.waterMark).length && addWaterMark(props.waterMark);
-  }
-
-  window.addEventListener("resize", resizeCanvas(canvas));
-  resizeCanvas(canvas);
+  resizeCanvas();
   if (props.defaultUrl !== "") {
     fromDataURL(props.defaultUrl);
   }
@@ -164,6 +164,7 @@ const addWaterMark = (data) => {
 
 onMounted(() => {
   draw();
+  window.addEventListener("resize", () => {resizeCanvas()});
 })
 
 defineExpose({
